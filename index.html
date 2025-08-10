@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movie list</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="search">
+        <input type="text" placeholder="enter movie name" />
+        <button><img src="images/search.png" /></button>
+      </div>
+      <h1 class="app-title">My Movie Watchlist</h1>
+      <!-- <p id="counter" class="counter-display">
+        Total Movies fetched: 0 | Watched: 0
+      </p> -->
+      <div id="counter">
+        <!-- text will be here for counting fetche movies and movie watched -->
+      </div>
+      <div id="loading-spinner" class="loading-spinner"></div>
+      <div id="movie-list" class="movie-grid">
+        <!-- movie cards will be dynamically displayed here -->
+      </div>
+    </div>
+    <script>
+      // API configuration
+      const apiKey = "81eb98cc"; // this is apiKey
+      const apiUrl = "https://www.omdbapi.com/"; // this is the url
+
+      // initializing an empty array for data movies
+      let movieData = [];
+
+      // initializes an empty Set data structure that will store the unique imdbID of each movie that the user marks as watched
+      let watchedMovies = new Set();
+
+      // variables for DOM Elements
+      const movieLIstElement = document.getElementById("movie-list");
+      const counterElement = document.getElementById("counter");
+      const loadingSpinner = document.getElementById("loading-spinner");
+      const counterBox = document.getElementById("counter");
+
+      const searchBox = document.querySelector(".search input");
+      const searchBtn = document.querySelector(".search button");
+
+      // function to fetch movies from the OMDb API
+      async function fetchMovies(searchTerm) {
+        // loading spinner visible when the data are fetched
+        loadingSpinner.style.display = "block";
+        // variable holds the text the user wants to search
+        const encodedSearchTerm = encodeURIComponent(searchTerm);
+        const response = await fetch(
+          `${apiUrl}?s=${searchTerm}&apikey=${apiKey}`
+        );
+        var data = await response.json();
+        movieLIstElement.innerHTML = "";
+        movieData = data.Search;
+        loadingSpinner.style.display = "none";
+      }
+
+      initializePage();
+
+      searchBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        await fetchMovies(searchBox.value);
+        renderMovies();
+      });
+
+      // rendering the movie cards on the page/in the movieListElement
+
+      function renderMovies() {
+        movieData.forEach((movie) => {
+          const movieCard = document.createElement("div");
+          movieCard.classList.add("movie-card");
+          movieCard.dataset.imdbId = movie.imdbID;
+
+          const posterUrl = movie.Poster;
+
+          movieCard.innerHTML = `
+            <img src="${posterUrl}" class="movie-poster">
+            <h2 class="movie-tittle">${movie.Title}</h2>
+            <p class="movie-year">(${movie.Year})</p>
+            <button class="toggle-watched-btn watch-btn">Watch</button>`;
+
+          movieLIstElement.appendChild(movieCard);
+
+          const toggleButton = movieCard.querySelector(".toggle-watched-btn");
+          const movieYear = movieCard.querySelector(".movie-year");
+          const movieTittle = movieCard.querySelector(".movie-tittle");
+          toggleButton.addEventListener("click", () => {
+            if (toggleButton.textContent !== "Watched") {
+              toggleButton.textContent = "Watched";
+              toggleButton.classList.add("watched");
+              movieYear.style.textDecoration = "line-through";
+              movieTittle.style.textDecoration = "line-through";
+              movieCard.style.backgroundColor = "#deecfa";
+              watchedCount++;
+            } else {
+              toggleButton.textContent = "Watch";
+              toggleButton.classList.remove("watched");
+              movieYear.style.textDecoration = "none";
+              movieTittle.style.textDecoration = "none";
+              movieCard.style.backgroundColor = "#f9fafb";
+              watchedCount--;
+            }
+            updateCounter();
+          });
+          updateCounter();
+        });
+      }
+
+      let watchedCount = 0;
+
+      // function to count the amount of the total movie fetched
+      function updateCounter() {
+        counterBox.innerHTML = `
+        <p class="text">Total Movies fetched: ${movieData.length} /</p>
+        <p class="text">Total Movies watched: ${watchedCount}</p>
+  `;
+      }
+
+      //function to render the movie list right after the page load
+      async function initializePage() {
+        await fetchMovies("hulk"); // Search for a default movie
+        renderMovies();
+      }
+
+      initializePage();
+    </script>
+  </body>
+</html>
