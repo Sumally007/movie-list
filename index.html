@@ -13,9 +13,6 @@
         <button><img src="images/search.png" /></button>
       </div>
       <h1 class="app-title">My Movie Watchlist</h1>
-      <!-- <p id="counter" class="counter-display">
-        Total Movies fetched: 0 | Watched: 0
-      </p> -->
       <div id="counter">
         <!-- text will be here for counting fetche movies and movie watched -->
       </div>
@@ -115,8 +112,8 @@
       // function to count the amount of the total movie fetched
       function updateCounter() {
         counterBox.innerHTML = `
-        <p class="text">Total Movies fetched: ${movieData.length} /</p>
-        <p class="text">Total Movies watched: ${watchedCount}</p>
+        <p class="text">Total Movies fetched: ${movieData.length} | </p>
+        <p class="text txt">Total Movies watched: ${watchedCount}</p>
   `;
       }
 
